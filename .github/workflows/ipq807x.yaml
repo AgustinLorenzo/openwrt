@@ -1,0 +1,70 @@
+name: Build IPQ807x NSS WiFi
+
+on: workflow_dispatch
+
+jobs:
+    build:
+        name: Prepare and build IPQ807x NSS generic images
+        runs-on: self-hosted
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Update and install feeds
+              run: |
+                ./scripts/feeds update -a
+                ./scripts/feeds install -a
+
+            - name: Import full config for IPQ807x NSS Generic
+              run: |
+                mv .full_config .config
+
+            - name: QoL fixes on default config
+              run: |
+                mkdir -p files/etc/uci-defaults
+                cat > files/etc/uci-defaults/99-qol_fixes << EOF
+                uci set wireless.radio0.country='US'
+                uci set wireless.radio1.country='US'
+                uci set wireless.radio2.country='US'
+                uci set wireless.radio1.disabled=0
+                uci set wireless.radio2.disabled=0
+                uci set pbuf.opt.memory_profile=auto
+                uci set network.globals.packet_steering=0
+                uci set firewall.@defaults[0].flow_offloading=0
+                uci set ecm.@general[0].enable_bridge_filtering=0
+                uci set system.@system[0].cronloglevel='7'
+                uci commit
+                EOF
+
+            - name: Download package sources
+              run: make download V=s
+
+            - name: Build tools
+              run: |
+                make tools/install -j$(nproc) V=s || \
+                make tools/install V=s
+
+            - name: Build toolchain
+              run: |
+                make toolchain/install -j$(nproc) V=s || \
+                make toolchain/install V=s
+
+            - name: Build target images
+              run: |
+                make -j$(nproc) V=s || \
+                make V=s
+
+            - name: Get the current date
+              run: echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+
+            - name: Create a release
+              uses: "ncipollo/release-action@v1"
+              with:
+                name: "Updated prebuilt images (NSS-WiFi) ${{ env.NOW }}"
+                commit: "main_nss"
+                tag: "ipq807x-nsswifi-${{ env.NOW }}"
+                generateReleaseNotes: true
+                makeLatest: true
+                artifacts: bin/targets/qualcommax/ipq807x/*
+                token: "${{ secrets.GITHUB_TOKEN }}"
