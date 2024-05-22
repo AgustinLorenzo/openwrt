@@ -1,0 +1,8 @@
+config fanctld 'config'
+	option Enabled '1'
+	option Gpio 'fan'
+	option Debug '0'
+	option Delay '5'
+	option Hits '3'
+	option Temp '75000'
+	option Hyst '5000'
