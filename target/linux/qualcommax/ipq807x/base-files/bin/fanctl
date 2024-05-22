@@ -1,0 +1,59 @@
+#!/bin/sh
+# base on work of: Karol Przybylski <itor@o2.pl>
+
+. /lib/functions.sh
+
+get_gpio() {
+
+	local config_section="config"
+
+	config_load 'fanctld'
+	config_get FAN_GPIO "$config_section" Gpio
+		[ -z "$FAN_GPIO" ] || {
+			return 1
+		}
+		[ -f "/sys/class/gpio/$FAN_GPIO/value" ] || {
+			return 1
+		}
+}
+
+get_gpio
+GPIO="$FAN_GPIO"
+
+usage() {
+  echo "usage: $0 [start|stop|status]"
+}
+
+fan_start() {
+  echo 1 > /sys/class/gpio/$GPIO/value
+}
+
+fan_stop() {
+   echo 0 > /sys/class/gpio/$GPIO/value
+}
+
+fan_status() {
+  status=`cat /sys/class/gpio/$GPIO/value`
+  if [ $status = 0 ]; then
+	  echo "disable"
+  else
+	  echo "enable"
+  fi
+}
+
+case $1 in
+  start)
+    fan_start
+    ;;
+  stop)
+    fan_stop
+    ;;
+  status)
+    fan_status
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+exit 0

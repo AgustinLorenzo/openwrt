@@ -1,0 +1,116 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+dlog() {
+	[ $debug = '1' ] && echo "$@" >> /tmp/fanctld.log
+}
+
+load_config() {
+
+	local config_section="config"
+
+	config_load 'fanctld'
+
+	config_get enabled "$config_section" Enabled
+	config_get fan_gpio "$config_section" Gpio
+	config_get debug "$config_section" Debug
+	config_get delay "$config_section" Delay
+	config_get hit_level "$config_section" Hits
+	config_get temp_trip "$config_section" Temp
+	config_get temp_hyst "$config_section" Hyst
+}
+
+load_config
+
+temp_clr=$((($temp_trip)-($temp_hyst)))
+
+nss_temp() {
+	cat /sys/class/thermal/thermal_zone0/temp
+}
+
+cpu_temp() {
+	cat /sys/class/thermal/thermal_zone9/temp
+}
+
+wifi0_temp() {
+       cat /sys/devices/platform/soc@0/c000000.wifi/ieee80211/phy0/hwmon*/temp1_input
+}
+
+wifi1_temp() {
+	 cat /sys/devices/platform/soc@0/c000000.wifi/ieee80211/phy1/hwmon*/temp1_input
+}
+
+wifi2_temp() {
+	 cat /sys/devices/platform/soc@0/c000000.wifi/ieee80211/phy2/hwmon*/temp1_input
+}
+
+aqr_temp() {
+	cat /sys/devices/platform/soc@0/90000.mdio/mdio_bus/90000.mdio-1/90000.mdio-1:08/hwmon/hwmon*/temp1_input
+}
+
+check_temps() {
+
+	temp1=$(nss_temp)
+	temp2=$(cpu_temp)
+	temp3=$(($(wifi0_temp)-1000))
+	temp4=$(($(wifi1_temp)))
+	temp5=$(($(wifi2_temp)-2000))
+	temp6=$(($(aqr_temp)-2000))
+
+	dlog "nss_temp=$temp1 cpu_temp=$temp2 wifi0_temp=$temp3 wifi1_temp=$temp4 wifi2_temp=$temp5 aqr_temp=$temp6"
+
+	load_config
+
+	if [ $temp1 -ge $temp_trip -o $temp2 -ge $temp_trip -o $temp3 -ge $temp_trip -o $temp4 -ge $temp_trip -o $temp5 -ge $temp_trip -o $temp6 -ge $temp_trip ]; then
+		echo 2
+	elif [ $temp1 -le $temp_clr -a $temp2 -le $temp_clr -a $temp3 -le $temp_clr -a $temp4 -le $temp_clr -a $temp5 -le $temp_clr -a $temp6 -le $temp_clr ]; then
+		echo 1
+	else
+		echo 0
+	fi
+}
+
+fan_status() {
+	fanctl status
+}
+
+load_config
+
+dlog "----- fanctld debug log -----"
+dlog "enabled=$enabled, delay=$delay, hit_level=$hit_level, temp=$temp_trip, hyst=$temp_hyst, debug=$debug"
+
+>> /tmp/fanctld.log
+
+trip_hits=0
+clr_hits=0
+
+while true; do
+	sleep $delay
+
+	result=$(check_temps)
+
+	if [ $result = '2' ]; then
+		trip_hits=$((trip_hits+1))
+	elif [ $result = '1' ]; then
+		clr_hits=$((clr_hits+1))
+	else
+		trip_hits=0
+		clr_hits=0
+	fi
+
+	if [ $trip_hits -ge $hit_level ]; then
+		trip_hits=0
+		if [ $(fan_status) = 'disable' ]; then
+			fanctl start
+			logger -p info -t fanctld "Fan switch on temperature reached ("$temp_trip"), start fan"
+
+		fi
+	elif [ $clr_hits -ge $hit_level ]; then
+		clr_hits=0
+		if [ $(fan_status) = 'enable' ]; then
+			fanctl stop
+			logger -p info -t fanctld "Fan switch off temperature reached ("$temp_clr"), stop fan"
+		fi
+	fi
+done

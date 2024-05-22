@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+
+USE_PROCD=1
+
+PROG=/sbin/fanctld
+
+start_service() {
+	local config_section="config"
+	config_load 'fanctld'
+	config_get_bool enabled "$config_section" Enabled
+	[ "$enabled" -gt 0 ] || {
+		return 1
+	}
+
+	procd_open_instance
+	procd_set_param command "$PROG"
+	procd_set_param respawn
+	procd_close_instance
+}
+
+stop_service() {
+	/bin/fanctl stop
+	echo "Fanctld Service stopped. Fan is disabled!"
+}
