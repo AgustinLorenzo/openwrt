@@ -305,6 +305,9 @@ platform_do_upgrade() {
 		nand_do_upgrade "$1"
 		;;
 	zyxel,nbg7815)
+		echo 0 > /sys/class/leds/q1:channel0/device/run_engine
+		echo "00499C0040FF7E0040007E00A001" > /sys/class/leds/q1:channel0/device/engine1_load
+		echo 1 > /sys/class/leds/q1:channel0/device/run_engine
 		local config_mtdnum="$(find_mtd_index 0:bootconfig)"
 		[ -z "$config_mtdnum" ] && reboot
 		part_num="$(hexdump -e '1/1 "%01x|"' -n 1 -s 168 -C /dev/mtd$config_mtdnum | cut -f 1 -d "|" | head -n1)"
