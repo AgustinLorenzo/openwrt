@@ -69,7 +69,7 @@ menu "Global build settings"
 		default y
 
 	config USE_APK
-		imply PACKAGE_apk-mbedtls
+		imply PACKAGE_apk-openssl
 		bool "Use APK instead of OPKG to build distribution"
 		default y
 
