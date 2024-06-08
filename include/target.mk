@@ -25,7 +25,7 @@ DEFAULT_PACKAGES:=\
 	fstools \
 	libc \
 	libgcc \
-	libustream-mbedtls \
+	libustream-openssl \
 	logd \
 	mtd \
 	netifd \
