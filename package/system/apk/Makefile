@@ -35,9 +35,7 @@ define Package/apk-mbedtls
   $(Package/apk/default)
   TITLE += (mbedtls)
   DEPENDS +=+libmbedtls
-  DEFAULT:=y if USE_APK
   VARIANT:=mbedtls
-  DEFAULT_VARIANT:=1
   CONFLICTS:=apk-openssl
 endef
 
@@ -45,7 +43,9 @@ define Package/apk-openssl
   $(Package/apk/default)
   TITLE += (openssl)
   DEPENDS +=+libopenssl
+  DEFAULT:=y if USE_APK
   VARIANT:=openssl
+  DEFAULT_VARIANT:=1
 endef
 
 MESON_HOST_VARS+=VERSION=$(PKG_VERSION)
