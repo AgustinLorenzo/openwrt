@@ -2190,9 +2190,9 @@ CONFIG_PACKAGE_nss-firmware-default=y
 # Select NSS firmware version
 #
 # CONFIG_NSS_FIRMWARE_VERSION_12_5 is not set
-CONFIG_NSS_FIRMWARE_VERSION_12_2=y
+# CONFIG_NSS_FIRMWARE_VERSION_12_2 is not set
 # CONFIG_NSS_FIRMWARE_VERSION_12_1 is not set
-# CONFIG_NSS_FIRMWARE_VERSION_11_4 is not set
+CONFIG_NSS_FIRMWARE_VERSION_11_4=y
 # end of NSS Firmware Version
 
 CONFIG_PACKAGE_nss-firmware-ipq8074=y
@@ -2888,7 +2888,7 @@ CONFIG_NSS_DRV_VLAN_ENABLE=y
 # CONFIG_NSS_DRV_VXLAN_ENABLE is not set
 CONFIG_NSS_DRV_WIFIOFFLOAD_ENABLE=y
 CONFIG_NSS_DRV_WIFI_EXT_VDEV_ENABLE=y
-# CONFIG_NSS_DRV_WIFI_MESH_ENABLE is not set
+CONFIG_NSS_DRV_WIFI_MESH_ENABLE=y
 # CONFIG_NSS_DRV_WIFI_LEGACY_ENABLE is not set
 # end of Configuration
 
@@ -2908,7 +2908,7 @@ CONFIG_PACKAGE_kmod-qca-nss-drv-tun6rd=y
 # CONFIG_PACKAGE_kmod-qca-nss-drv-tunipip6 is not set
 CONFIG_PACKAGE_kmod-qca-nss-drv-vlan-mgr=y
 # CONFIG_PACKAGE_kmod-qca-nss-drv-vxlanmgr is not set
-# CONFIG_PACKAGE_kmod-qca-nss-drv-wifi-meshmgr is not set
+CONFIG_PACKAGE_kmod-qca-nss-drv-wifi-meshmgr=y
 # CONFIG_PACKAGE_kmod-qca-nss-macsec is not set
 CONFIG_PACKAGE_kmod-qca-ssdk=y
 # CONFIG_PACKAGE_kmod-qlcnic is not set
@@ -3302,7 +3302,7 @@ CONFIG_PACKAGE_kmod-ath11k=y
 # CONFIG_ATH11K_DEBUGFS_STA is not set
 # CONFIG_ATH11K_DEBUGFS_HTT_STATS is not set
 CONFIG_ATH11K_NSS_SUPPORT=y
-# CONFIG_ATH11K_NSS_MESH_SUPPORT is not set
+CONFIG_ATH11K_NSS_MESH_SUPPORT=y
 # CONFIG_ATH11K_MEM_PROFILE_1G is not set
 CONFIG_ATH11K_MEM_PROFILE_512M=y
 # CONFIG_ATH11K_MEM_PROFILE_256M is not set
@@ -5792,7 +5792,7 @@ CONFIG_PACKAGE_luci-i18n-wol-es=y
 #
 # CONFIG_PACKAGE_apfree-wifidog is not set
 # CONFIG_PACKAGE_coova-chilli is not set
-# CONFIG_PACKAGE_mesh11sd is not set
+CONFIG_PACKAGE_mesh11sd=y
 # CONFIG_PACKAGE_nodogsplash is not set
 # CONFIG_PACKAGE_opennds is not set
 # CONFIG_PACKAGE_uspot is not set
