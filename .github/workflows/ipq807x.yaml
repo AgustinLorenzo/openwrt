@@ -1,4 +1,4 @@
-name: Build IPQ807x NSS WiFi
+name: Build IPQ807x NSS WiFi Mesh
 
 on: workflow_dispatch
 
@@ -37,6 +37,8 @@ jobs:
                 /etc/init.d/mwan3 disable
                 /etc/init.d/sqm stop
                 /etc/init.d/sqm disable
+                /etc/init.d/mesh11sd stop
+                /etc/init.d/mesh11sd disable
                 uci commit
                 EOF
 
@@ -66,11 +68,11 @@ jobs:
             - name: Create a release
               uses: "ncipollo/release-action@v1"
               with:
-                name: "Updated prebuilt images (NSS-WiFi) ${{ env.NOW }}"
-                commit: "main_nss"
-                tag: "ipq807x-nsswifi-${{ env.NOW }}"
+                name: "Updated prebuilt images (NSS-WiFi with Mesh) ${{ env.NOW }}"
+                commit: "main_nss_mesh"
+                tag: "ipq807x-nsswifi-mesh-${{ env.NOW }}"
                 generateReleaseNotes: true
-                makeLatest: true
+                makeLatest: false
                 artifacts: bin/targets/qualcommax/ipq807x/*
                 token: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -82,8 +84,8 @@ jobs:
             - name: Clone OpenWRT Data Repo and push new data
               run: |
                 git clone https://x-access-token:${{ secrets.DESTINATION_TOKEN }}@github.com/AgustinLorenzo/openwrtdata.git dest-repo
-                mkdir -p dest-repo/data/nss-wifi/${{ env.NOWWEB }}
-                rsync -av --delete --exclude='.git' bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi/${{ env.NOWWEB }}/
+                mkdir -p dest-repo/data/nss-wifi-mesh/${{ env.NOWWEB }}
+                rsync -av --delete --exclude='.git' bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi-mesh/${{ env.NOWWEB }}/
                 cd dest-repo
                 git add .
                 if git diff --cached --quiet; then
