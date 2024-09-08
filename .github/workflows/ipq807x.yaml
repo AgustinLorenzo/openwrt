@@ -1,4 +1,4 @@
-name: Build IPQ807x NSS WiFi
+name: Build IPQ807x NSS WiFi Mesh
 
 on: workflow_dispatch
 
@@ -37,6 +37,8 @@ jobs:
                 /etc/init.d/mwan3 disable
                 /etc/init.d/sqm stop
                 /etc/init.d/sqm disable
+                /etc/init.d/mesh11sd stop
+                /etc/init.d/mesh11sd disable
                 uci commit
                 EOF
 
@@ -64,10 +66,10 @@ jobs:
             - name: Create a release
               uses: "ncipollo/release-action@v1"
               with:
-                name: "Updated prebuilt images (NSS-WiFi) ${{ env.NOW }}"
-                commit: "main_nss"
-                tag: "ipq807x-nsswifi-${{ env.NOW }}"
+                name: "Updated prebuilt images (NSS-WiFi with Mesh) ${{ env.NOW }}"
+                commit: "main_nss_mesh"
+                tag: "ipq807x-nsswifi-mesh-${{ env.NOW }}"
                 generateReleaseNotes: true
-                makeLatest: true
+                makeLatest: false
                 artifacts: bin/targets/qualcommax/ipq807x/*
                 token: "${{ secrets.GITHUB_TOKEN }}"
