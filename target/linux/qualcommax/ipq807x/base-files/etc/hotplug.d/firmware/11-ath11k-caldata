@@ -138,7 +138,6 @@ case "$FIRMWARE" in
 		label_mac=$(get_mac_label)
 		ath11k_patch_mac $(macaddr_add $label_mac 3) 0
 		ath11k_patch_mac $(macaddr_add $label_mac 2) 1
-		ath11k_patch_mac $(macaddr_add $label_mac 4) 2
 		ath11k_set_macflag
 		;;
 	zyxel,nwa110ax)
