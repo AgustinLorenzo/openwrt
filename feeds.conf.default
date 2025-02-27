@@ -5,6 +5,7 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git video https://github.com/openwrt/video.git
 src-git nss_packages https://github.com/AgustinLorenzo/nss-packages.git;main_nss_wifi
 src-git sqm_scripts_nss https://github.com/qosmio/sqm-scripts-nss.git
+src-git alpinefancontrol https://github.com/devrus91/openwrt-alpine-fan-control.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
 #src-link custom /usr/src/openwrt/custom-feed
