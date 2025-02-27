@@ -122,6 +122,19 @@
 
 	pinctrl-0 = <&i2c_pins>;
 	pinctrl-names = "default";
+	
+	hwmon0: emc2301@2f {
+		compatible = "smsc,emc2301", "emc2301";
+		reg = <0x2f>;
+		model_name = "emc2301";
+		#address-cells = <0x01>;
+		#size-cells = <0x00>;
+		fan0: emc2305_fan@0 {
+				reg = <0>;
+				name = "emc2305_fan";
+				pwm-output-mode = <1>;
+		};
+	};
 };
 
 &prng {
