@@ -30,10 +30,13 @@ jobs:
                 uci set wireless.radio1.disabled=0
                 uci set wireless.radio2.disabled=0
                 uci set pbuf.opt.memory_profile=auto
-                uci set network.globals.packet_steering=0
                 uci set firewall.@defaults[0].flow_offloading=0
                 uci set ecm.@general[0].enable_bridge_filtering=0
                 uci set system.@system[0].cronloglevel='7'
+                /etc/init.d/mwan3 stop
+                /etc/init.d/mwan3 disable
+                /etc/init.d/sqm stop
+                /etc/init.d/sqm disable
                 uci commit
                 EOF
 
