@@ -41,10 +41,6 @@ wifi1_temp() {
 	 cat /sys/devices/platform/soc@0/c000000.wifi/ieee80211/phy1/hwmon*/temp1_input
 }
 
-wifi2_temp() {
-	 cat /sys/devices/platform/soc@0/c000000.wifi/ieee80211/phy2/hwmon*/temp1_input
-}
-
 aqr_temp() {
 	cat /sys/devices/platform/soc@0/90000.mdio/mdio_bus/90000.mdio-1/90000.mdio-1:08/hwmon/hwmon*/temp1_input
 }
@@ -53,18 +49,17 @@ check_temps() {
 
 	temp1=$(nss_temp)
 	temp2=$(cpu_temp)
-	temp3=$(($(wifi0_temp)-1000))
+	temp3=$(($(wifi0_temp)-2000))
 	temp4=$(($(wifi1_temp)))
-	temp5=$(($(wifi2_temp)-2000))
-	temp6=$(($(aqr_temp)-2000))
+	temp5=$(($(aqr_temp)-2000))
 
-	dlog "nss_temp=$temp1 cpu_temp=$temp2 wifi0_temp=$temp3 wifi1_temp=$temp4 wifi2_temp=$temp5 aqr_temp=$temp6"
+	dlog "nss_temp=$temp1 cpu_temp=$temp2 wifi0_temp=$temp3 wifi1_temp=$temp4 aqr_temp=$temp5"
 
 	load_config
 
-	if [ $temp1 -ge $temp_trip -o $temp2 -ge $temp_trip -o $temp3 -ge $temp_trip -o $temp4 -ge $temp_trip -o $temp5 -ge $temp_trip -o $temp6 -ge $temp_trip ]; then
+	if [ $temp1 -ge $temp_trip -o $temp2 -ge $temp_trip -o $temp3 -ge $temp_trip -o $temp4 -ge $temp_trip -o $temp5 -ge $temp_trip ]; then
 		echo 2
-	elif [ $temp1 -le $temp_clr -a $temp2 -le $temp_clr -a $temp3 -le $temp_clr -a $temp4 -le $temp_clr -a $temp5 -le $temp_clr -a $temp6 -le $temp_clr ]; then
+	elif [ $temp1 -le $temp_clr -a $temp2 -le $temp_clr -a $temp3 -le $temp_clr -a $temp4 -le $temp_clr -a $temp5 -le $temp_clr ]; then
 		echo 1
 	else
 		echo 0
