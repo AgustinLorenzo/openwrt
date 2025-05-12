@@ -16,7 +16,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
 
 --- a/nat46/modules/nat46-core.c
 +++ b/nat46/modules/nat46-core.c
-@@ -128,6 +128,13 @@ int try_parse_ipv6_prefix(struct in6_add
+@@ -132,6 +132,13 @@ static int try_parse_ipv6_prefix(struct
      *arg_plen++ = 0;
      if (pref_len) {
        *pref_len = simple_strtol(arg_plen, NULL, 10);
@@ -30,7 +30,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
      }
    }
    err = (1 != in6_pton(arg, -1, (u8 *)pref, '\0', NULL));
-@@ -141,6 +148,13 @@ int try_parse_ipv4_prefix(u32 *v4addr, i
+@@ -145,6 +152,13 @@ static int try_parse_ipv4_prefix(u32 *v4
      *arg_plen++ = 0;
      if (pref_len) {
        *pref_len = simple_strtol(arg_plen, NULL, 10);
@@ -44,7 +44,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
      }
    }
    err = (1 != in4_pton(arg, -1, (u8 *)v4addr, '/', NULL));
-@@ -183,11 +197,127 @@ int try_parse_rule_arg(nat46_xlate_rule_
+@@ -187,11 +201,127 @@ static int try_parse_rule_arg(nat46_xlat
    return err;
  }
  
@@ -175,7 +175,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
  int nat46_set_ipair_config(nat46_instance_t *nat46, int ipair, char *buf, int count) {
    char *tail = buf;
    char *arg_name;
-@@ -217,7 +347,18 @@ int nat46_set_ipair_config(nat46_instanc
+@@ -221,7 +351,18 @@ int nat46_set_ipair_config(nat46_instanc
        err = try_parse_rule_arg(&apair->remote, arg_name, &tail);
      }
    }
@@ -195,7 +195,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
  }
  
  int nat46_set_config(nat46_instance_t *nat46, char *buf, int count) {
-@@ -933,37 +1074,120 @@ int is_last_pair_in_group(nat46_xlate_ru
+@@ -949,37 +1090,120 @@ static int is_last_pair_in_group(nat46_x
    return ( (apair->local.style != NAT46_XLATE_NONE) && (apair->remote.style != NAT46_XLATE_NONE) );
  }
  
@@ -289,7 +289,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
 +	return NULL;
 +}
 +
- void pairs_xlate_v6_to_v4_inner(nat46_instance_t *nat46, struct ipv6hdr *ip6h, __u32 *pv4saddr, __u32 *pv4daddr) {
+ static void pairs_xlate_v6_to_v4_inner(nat46_instance_t *nat46, struct ipv6hdr *ip6h, __u32 *pv4saddr, __u32 *pv4daddr) {
    int ipair = 0;
    nat46_xlate_rulepair_t *apair = NULL;
    int xlate_src = -1;
@@ -339,12 +339,12 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
  }
  
  /*
-@@ -1557,40 +1781,31 @@ static uint16_t nat46_fixup_icmp(nat46_i
+@@ -1573,40 +1797,31 @@ static uint16_t nat46_fixup_icmp(nat46_i
    return ret;
  }
  
--int pairs_xlate_v6_to_v4_outer(nat46_instance_t *nat46, struct ipv6hdr *ip6h, uint16_t proto, __u32 *pv4saddr, __u32 *pv4daddr) {
-+int pairs_xlate_v6_to_v4_outer(nat46_instance_t *nat46, nat46_xlate_rulepair_t *apair,
+-static int pairs_xlate_v6_to_v4_outer(nat46_instance_t *nat46, struct ipv6hdr *ip6h, uint16_t proto, __u32 *pv4saddr, __u32 *pv4daddr) {
++static int pairs_xlate_v6_to_v4_outer(nat46_instance_t *nat46, nat46_xlate_rulepair_t *apair,
 +		struct ipv6hdr *ip6h, uint16_t proto, __u32 *pv4saddr, __u32 *pv4daddr) {
    int ipair = 0;
 -  nat46_xlate_rulepair_t *apair = NULL;
@@ -394,7 +394,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
          nat46debug(1, "[nat46] Could not translate remote address v6->v4, ipair %d, for ICMP6 use dest addr", ipair);
          *pv4saddr = *pv4daddr;
          xlate_src = xlate_dst;
-@@ -1606,12 +1821,14 @@ int pairs_xlate_v6_to_v4_outer(nat46_ins
+@@ -1622,12 +1837,14 @@ static int pairs_xlate_v6_to_v4_outer(na
  }
  
  int xlate_6_to_4(struct net_device *dev, struct ipv6hdr *ip6h, uint16_t proto, __u32 *pv4saddr, __u32 *pv4daddr) {
@@ -410,7 +410,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
    nat46_instance_t *nat46 = get_nat46_instance(old_skb);
    uint16_t proto;
    uint16_t frag_off;
-@@ -1684,7 +1901,7 @@ int nat46_ipv6_input(struct sk_buff *old
+@@ -1700,7 +1917,7 @@ int nat46_ipv6_input(struct sk_buff *old
      check_for_l4 = 1;
    }
  
@@ -419,12 +419,12 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
      nat46debug(0, "[nat46] Could not translate v6->v4");
      goto done;
    }
-@@ -1837,56 +2054,44 @@ int ip4_input_not_interested(nat46_insta
+@@ -1858,56 +2075,44 @@ static int ip4_input_not_interested(nat4
    return 0;
  }
  
--int pairs_xlate_v4_to_v6_outer(nat46_instance_t *nat46, struct iphdr *hdr4, uint16_t *sport, uint16_t *dport, void *v6saddr, void *v6daddr) {
-+int pairs_xlate_v4_to_v6_outer(nat46_instance_t *nat46, nat46_xlate_rulepair_t *apair,
+-static int pairs_xlate_v4_to_v6_outer(nat46_instance_t *nat46, struct iphdr *hdr4, uint16_t *sport, uint16_t *dport, void *v6saddr, void *v6daddr) {
++static int pairs_xlate_v4_to_v6_outer(nat46_instance_t *nat46, nat46_xlate_rulepair_t *apair,
 +		struct iphdr *hdr4, uint16_t *sport, uint16_t *dport, void *v6saddr, void *v6daddr) {
    int ipair = 0;
 -  nat46_xlate_rulepair_t *apair = NULL;
@@ -499,7 +499,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
   */
  int pairs_xlate_v4_to_v6_inner(nat46_instance_t *nat46, struct iphdr *iph,
  		uint16_t sport, uint16_t dport, void *v6saddr, void *v6daddr) {
-@@ -1895,35 +2100,27 @@ int pairs_xlate_v4_to_v6_inner(nat46_ins
+@@ -1916,35 +2121,27 @@ int pairs_xlate_v4_to_v6_inner(nat46_ins
  	int xlate_src = -1;
  	int xlate_dst = -1;
  
@@ -554,7 +554,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
  	return 0;
  }
  
-@@ -2020,6 +2217,7 @@ static uint16_t xlate_pkt_in_err_v4_to_v
+@@ -2041,6 +2238,7 @@ static uint16_t xlate_pkt_in_err_v4_to_v
  
  int nat46_ipv4_input(struct sk_buff *old_skb) {
    nat46_instance_t *nat46 = get_nat46_instance(old_skb);
@@ -562,7 +562,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
    struct sk_buff *new_skb;
    uint16_t sport = 0, dport = 0, ret = 0;
  
-@@ -2097,7 +2295,7 @@ int nat46_ipv4_input(struct sk_buff *old
+@@ -2118,7 +2316,7 @@ int nat46_ipv4_input(struct sk_buff *old
      having_l4 = 1;
    }
  
@@ -622,7 +622,7 @@ Signed-off-by: Pavithra R <pavir@codeaurora.org>
  int nat46_ipv6_input(struct sk_buff *old_skb);
 --- a/nat46/modules/nat46-netdev.c
 +++ b/nat46/modules/nat46-netdev.c
-@@ -270,7 +270,14 @@ int nat46_insert(struct net *net, char *
+@@ -284,7 +284,14 @@ int nat46_insert(struct net *net, char *
  	int ret = -1;
  	if(dev) {
  		nat46_instance_t *nat46 = netdev_nat46_instance(dev);

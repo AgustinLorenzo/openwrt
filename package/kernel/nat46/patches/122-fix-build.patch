@@ -1,0 +1,14 @@
+--- a/nat46/modules/nat46-core.c
++++ b/nat46/modules/nat46-core.c
+@@ -1107,11 +1107,6 @@ static u16 rechecksum16(void *p, int cou
+   return csum;
+ }
+ 
+-/* Last rule in group must not have "none" as either source or destination */
+-static int is_last_pair_in_group(nat46_xlate_rulepair_t *apair) {
+-  return ( (apair->local.style != NAT46_XLATE_NONE) && (apair->remote.style != NAT46_XLATE_NONE) );
+-}
+-
+ nat46_xlate_rulepair_t *nat46_lpm(nat46_instance_t *nat46, nat46_rule_type_t type, void *paddr) {
+ 	int ipair = 0;
+ 	nat46_xlate_rulepair_t *apair = NULL;
