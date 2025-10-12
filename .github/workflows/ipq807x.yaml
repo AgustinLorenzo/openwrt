@@ -56,7 +56,9 @@ jobs:
                 make V=s
 
             - name: Get the current date
-              run: echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+              run: |
+                echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+                echo "NOWWEB=$(date +%Y%m%d)" >> $GITHUB_ENV
 
             - name: Create a release
               uses: ncipollo/release-action@v1.20.0
@@ -68,3 +70,17 @@ jobs:
                 makeLatest: true
                 artifacts: bin/targets/qualcommax/ipq807x/*
                 token: "${{ secrets.GITHUB_TOKEN }}"
+
+            - name: Clone OpenWRT Data Repo and push new data
+              run: |
+                git clone https://x-access-token:${{ secrets.DESTINATION_TOKEN }}@github.com/AgustinLorenzo/openwrtdata.git dest-repo
+                mkdir -p dest-repo/data/nss-wifi/${{ env.NOWWEB }}
+                rsync -av --delete --exclude='.git' bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi/${{ env.NOWWEB }}/
+                cd dest-repo
+                git add .
+                if git diff --cached --quiet; then
+                    echo "No changes to upload"
+                else
+                    git commit -m "Sync from ${{ github.repository }}:$(date +'%Y-%m-%d %H:%M:%S')"
+                    git push origin main
+                fi
