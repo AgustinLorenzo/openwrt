@@ -74,21 +74,4 @@ jobs:
                 artifacts: bin/targets/qualcommax/ipq807x/*
                 token: "${{ secrets.GITHUB_TOKEN }}"
 
-            - name: Git Config
-              run: |
-                git config --global user.name "github-actions[bot]"
-                git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-            - name: Clone OpenWRT Data Repo and push new data
-              run: |
-                git clone https://x-access-token:${{ secrets.DESTINATION_TOKEN }}@github.com/AgustinLorenzo/openwrtdata.git dest-repo
-                mkdir -p dest-repo/data/nss-wifi/${{ env.NOWWEB }}
-                rsync -av --delete --exclude='.git' bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi/${{ env.NOWWEB }}/
-                cd dest-repo
-                git add .
-                if git diff --cached --quiet; then
-                    echo "No hay cambios para subir"
-                else
-                    git commit -m "Sync desde ${{ github.repository }}:$(date +'%Y-%m-%d %H:%M:%S')"
-                    git push origin main
-                fi
