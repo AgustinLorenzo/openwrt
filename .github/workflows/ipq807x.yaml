@@ -5,7 +5,7 @@ on: workflow_dispatch
 jobs:
     build:
         name: Prepare and build IPQ807x NSS generic images
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
 
         steps:
             - name: Checkout
