@@ -32,6 +32,25 @@ jobs:
                   echo "Warning: Custom firmware file not found in custom-files/"
                 fi
 
+            - name: Setup EMC2301 fan controller
+              run: |
+                # Create rc.local for EMC2301 fan controller initialization
+                mkdir -p files/etc
+                cat > files/etc/rc.local << EOF
+                #!/bin/sh
+                # Put your custom commands here that should be executed once
+                # the system init finished. By default this file does nothing.
+                
+                # Initialize EMC2301 fan controller
+                echo emc2301 0x2f > /sys/bus/i2c/devices/i2c-0/new_device
+                i2cset -f -y 0 0x2f 0x38 0x18 
+                i2cset -f -y 0 0x2f 0x2b 0x01
+                echo 60 > /sys/class/hwmon/hwmon4/pwm1
+                
+                exit 0
+                EOF
+                chmod +x files/etc/rc.local
+
             - name: QoL fixes on default config
               run: |
                 mkdir -p files/etc/uci-defaults
@@ -39,8 +58,9 @@ jobs:
                 uci set wireless.radio0.country='US'
                 uci set wireless.radio1.country='US'
                 uci set wireless.radio2.country='US'
-                uci set wireless.radio1.disabled=0
+                uci set wireless.radio3.country='US'
                 uci set wireless.radio2.disabled=0
+                uci set wireless.radio3.disabled=0
                 uci set pbuf.opt.memory_profile=auto
                 uci set firewall.@defaults[0].flow_offloading=0
                 uci set ecm.@general[0].enable_bridge_filtering=0
