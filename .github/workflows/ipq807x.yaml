@@ -20,6 +20,18 @@ jobs:
               run: |
                 mv .full_config .config
 
+            - name: Replace QCN9074 firmware file
+              run: |
+                # Replace QCN9074 firmware file BEFORE WiFi activation
+                mkdir -p files/lib/firmware/ath11k/QCN9074/hw1.0
+                # Copy custom firmware file to override default board-2.bin
+                if [ -f "custom-files/board-2.bin" ]; then
+                  cp custom-files/board-2.bin files/lib/firmware/ath11k/QCN9074/hw1.0/
+                  echo "Custom QCN9074 firmware file copied successfully"
+                else
+                  echo "Warning: Custom firmware file not found in custom-files/"
+                fi
+
             - name: QoL fixes on default config
               run: |
                 mkdir -p files/etc/uci-defaults
