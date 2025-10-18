@@ -16,6 +16,22 @@ jobs:
                 ./scripts/feeds update -a
                 ./scripts/feeds install -a
 
+            - name: Fix i2c-tools FileExistsError
+              run: |
+                # Apply workaround for i2c-tools python3-smbus FileExistsError
+                # Based on commit 71bfbaa969f694da008a4bafa2b73c003ac8ac47
+                I2C_MAKEFILE="feeds/packages/utils/i2c-tools/Makefile"
+                if [ -f "$I2C_MAKEFILE" ]; then
+                  echo "Applying i2c-tools build fix..."
+                  # Add cleanup step before python build to prevent FileExistsError  
+                  sed -i '/define Build\/Install/a\\t# Clean existing python files to prevent FileExistsError\n\trm -f $(PKG_BUILD_DIR)/ipkg-install/usr/lib/python*/site-packages/smbus*.so 2>/dev/null || true' "$I2C_MAKEFILE"
+                  echo "i2c-tools FileExistsError fix applied"
+                else
+                  echo "Warning: i2c-tools Makefile not found"
+                fi
+
+
+
             - name: Import full config for IPQ807x NSS Generic
               run: |
                 mv .full_config .config
