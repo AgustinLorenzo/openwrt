@@ -4916,7 +4916,7 @@ CONFIG_PACKAGE_libf2fs=m
 # CONFIG_PACKAGE_libhiredis is not set
 # CONFIG_PACKAGE_libhttp-parser is not set
 # CONFIG_PACKAGE_libhwloc is not set
-# CONFIG_PACKAGE_libi2c is not set
+CONFIG_PACKAGE_libi2c=y
 # CONFIG_PACKAGE_libical is not set
 # CONFIG_PACKAGE_libiconv-full is not set
 # CONFIG_PACKAGE_libid3tag is not set
