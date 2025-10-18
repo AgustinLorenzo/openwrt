@@ -30,23 +30,9 @@ jobs:
                   echo "Warning: i2c-tools Makefile not found"
                 fi
 
-
-
             - name: Import full config for IPQ807x NSS Generic
               run: |
                 mv .full_config .config
-
-            - name: Replace QCN9074 firmware file
-              run: |
-                # Replace QCN9074 firmware file BEFORE WiFi activation
-                mkdir -p files/lib/firmware/ath11k/QCN9074/hw1.0
-                # Copy custom firmware file to override default board-2.bin
-                if [ -f "custom-files/board-2.bin" ]; then
-                  cp custom-files/board-2.bin files/lib/firmware/ath11k/QCN9074/hw1.0/
-                  echo "Custom QCN9074 firmware file copied successfully"
-                else
-                  echo "Warning: Custom firmware file not found in custom-files/"
-                fi
 
             - name: Setup EMC2301 fan controller
               run: |
@@ -74,9 +60,8 @@ jobs:
                 uci set wireless.radio0.country='US'
                 uci set wireless.radio1.country='US'
                 uci set wireless.radio2.country='US'
-                uci set wireless.radio3.country='US'
-                uci set wireless.radio2.disabled=0
-                uci set wireless.radio3.disabled=0
+                uci set wireless.radio0.disabled=0
+                uci set wireless.radio1.disabled=0
                 uci set pbuf.opt.memory_profile=auto
                 uci set firewall.@defaults[0].flow_offloading=0
                 uci set ecm.@general[0].enable_bridge_filtering=0
