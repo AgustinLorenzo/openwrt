@@ -105,8 +105,8 @@ jobs:
                 uci set wireless.radio0.country='US'
                 uci set wireless.radio1.country='US'
                 uci set wireless.radio2.country='US'
-                uci set wireless.radio0.disabled=0
-                uci set wireless.radio1.disabled=0
+                uci set wireless.radio0.disabled=1
+                uci set wireless.radio1.disabled=1
                 uci set pbuf.opt.memory_profile=auto
                 uci set firewall.@defaults[0].flow_offloading=0
                 uci set ecm.@general[0].enable_bridge_filtering=0
