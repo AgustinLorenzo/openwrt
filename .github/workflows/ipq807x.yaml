@@ -36,22 +36,67 @@ jobs:
 
             - name: Setup EMC2301 fan controller
               run: |
-                # Create rc.local for EMC2301 fan controller initialization
-                mkdir -p files/etc
-                cat > files/etc/rc.local << EOF
+                # Create init script for EMC2301 fan controller (survives updates)
+                mkdir -p files/etc/init.d
+                cat > files/etc/init.d/emc2301-init << 'EOF'
+                #!/bin/sh /etc/rc.common
+                
+                START=99
+                STOP=10
+                
+                start() {
+                    echo "Initializing EMC2301 fan controller..."
+                    
+                    # Wait for I2C bus to be ready
+                    sleep 10
+                    
+                    # Check if I2C bus exists
+                    if [ -d "/sys/bus/i2c/devices/i2c-0" ]; then
+                        # Register EMC2301 device if not already exists
+                        if [ ! -d "/sys/bus/i2c/devices/0-002f" ]; then
+                            echo emc2301 0x2f > /sys/bus/i2c/devices/i2c-0/new_device 2>/dev/null
+                            sleep 3
+                        fi
+                        
+                        # Configure EMC2301 registers if i2cset is available
+                        if command -v i2cset >/dev/null 2>&1; then
+                            i2cset -f -y 0 0x2f 0x38 0x18 2>/dev/null  # Config register
+                            i2cset -f -y 0 0x2f 0x2b 0x01 2>/dev/null  # Enable fan
+                            sleep 1
+                        fi
+                        
+                        # Set PWM value - find correct hwmon device
+                        for hwmon in /sys/class/hwmon/hwmon*; do
+                            if [ -f "$hwmon/name" ] && [ "$(cat $hwmon/name 2>/dev/null)" = "emc2305" ]; then
+                                if [ -f "$hwmon/pwm1" ]; then
+                                    echo 60 > "$hwmon/pwm1" 2>/dev/null
+                                    echo "EMC2301 initialized: $hwmon"
+                                    break
+                                fi
+                            fi
+                        done
+                        echo "EMC2301 fan controller initialized"
+                    else
+                        echo "Warning: I2C bus not found"
+                    fi
+                }
+                
+                stop() {
+                    echo "Stopping EMC2301 fan controller"
+                }
+                EOF
+                chmod +x files/etc/init.d/emc2301-init
+                
+                # Create uci-defaults to enable the service (runs on first boot and after sysupgrade)
+                mkdir -p files/etc/uci-defaults
+                cat > files/etc/uci-defaults/98-emc2301-enable << 'EOF'
                 #!/bin/sh
-                # Put your custom commands here that should be executed once
-                # the system init finished. By default this file does nothing.
-                
-                # Initialize EMC2301 fan controller
-                echo emc2301 0x2f > /sys/bus/i2c/devices/i2c-0/new_device
-                i2cset -f -y 0 0x2f 0x38 0x18 
-                i2cset -f -y 0 0x2f 0x2b 0x01
-                echo 60 > /sys/class/hwmon/hwmon4/pwm1
-                
+                # Enable EMC2301 fan controller service
+                /etc/init.d/emc2301-init enable
+                /etc/init.d/emc2301-init start
                 exit 0
                 EOF
-                chmod +x files/etc/rc.local
+                chmod +x files/etc/uci-defaults/98-emc2301-enable
 
             - name: QoL fixes on default config
               run: |
