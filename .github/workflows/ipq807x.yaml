@@ -11,6 +11,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6.0.1
 
+            - name: Extract LLVM prebuilt
+              run: |
+                wget https://downloads.openwrt.org/snapshots/targets/qualcommax/ipq807x/llvm-bpf-21.1.6.Linux-x86_64.tar.zst
+                tar --zstd -xvf llvm-bpf-21.1.6.Linux-x86_64.tar.zst
+
             - name: Update and install feeds
               run: |
                 ./scripts/feeds update -a
@@ -33,10 +38,6 @@ jobs:
                 uci set firewall.@defaults[0].flow_offloading=0
                 uci set ecm.@general[0].enable_bridge_filtering=0
                 uci set system.@system[0].cronloglevel='7'
-                /etc/init.d/mwan3 stop
-                /etc/init.d/mwan3 disable
-                /etc/init.d/sqm stop
-                /etc/init.d/sqm disable
                 uci commit wireless
                 uci commit pbuf
                 uci commit firewall
@@ -76,9 +77,9 @@ jobs:
             - name: Create a release
               uses: ncipollo/release-action@v1.20.0
               with:
-                name: "Updated prebuilt images (NSS-WiFi) ${{ env.NOW }}"
+                name: "Updated prebuilt images (NSS-WiFi unified) ${{ env.NOW }}"
                 commit: "main_nss"
-                tag: "ipq807x-nsswifi-${{ env.NOW }}"
+                tag: "ipq807x-nsswifi-unified-${{ env.NOW }}"
                 generateReleaseNotes: true
                 makeLatest: true
                 artifacts: bin/targets/qualcommax/ipq807x/*
@@ -87,8 +88,8 @@ jobs:
             - name: Clone OpenWRT Data Repo and push new data
               run: |
                 git clone https://x-access-token:${{ secrets.DESTINATION_TOKEN }}@github.com/AgustinLorenzo/openwrtdata.git dest-repo
-                mkdir -p dest-repo/data/nss-wifi/${{ env.NOWWEB }}
-                rsync -av --delete --exclude='.git' bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi/${{ env.NOWWEB }}/
+                mkdir -p dest-repo/data/nss-wifi-unified/${{ env.NOWWEB }}
+                rsync -avzP --delete bin/targets/qualcommax/ipq807x/* dest-repo/data/nss-wifi-unified/${{ env.NOWWEB }}/
                 cd dest-repo
                 git add .
                 if git diff --cached --quiet; then
