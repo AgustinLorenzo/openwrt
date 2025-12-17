@@ -82,5 +82,19 @@ jobs:
                     echo "No changes to upload"
                 else
                     git commit -m "Sync from ${{ github.repository }}:$(date +'%Y-%m-%d %H:%M:%S')"
+                fi
+
+            - name: Uploading the rest of the packages and refreshing the index
+              run: |
+                rsync -avzP bin/packages/aarch64_cortex-a53/*/*.apk bin/targets/qualcommax/ipq807x/packages/
+                make package/index
+                rsync -avzP bin/packages/aarch64_cortex-a53/*/*.apk dest-repo/data/nss-wifi-unified/${{ env.NOWWEB }}/packages/
+                rsync -avzP bin/targets/qualcommax/ipq807x/packages/packages.adb bin/targets/qualcommax/ipq807x/packages/index.json dest-repo/data/nss-wifi-unified/${{ env.NOWWEB }}/packages/
+                cd dest-repo
+                git add .
+                if git diff --cached --quiet; then
+                    echo "No changes to upload"
+                else
+                    git commit -m "Uploading the rest of the packages and refreshing the index"
                     git push origin main
                 fi
