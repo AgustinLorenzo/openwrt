@@ -1,5 +1,5 @@
 config fanctld 'config'
-	option Enabled '1'
+	option Enabled '0'
 	option Gpio 'fan'
 	option Debug '0'
 	option Delay '5'
