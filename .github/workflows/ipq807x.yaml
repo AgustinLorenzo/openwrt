@@ -55,6 +55,12 @@ jobs:
                 make -j$(nproc) V=s || \
                 make V=s
 
+    release:
+        name: Make a release
+        runs-on: self-hosted
+        needs: build
+
+        steps:
             - name: Get the current date
               run: |
                 echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
