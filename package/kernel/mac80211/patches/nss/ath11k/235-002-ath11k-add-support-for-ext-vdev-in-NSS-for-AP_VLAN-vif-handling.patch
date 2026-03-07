@@ -230,7 +230,7 @@ Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
  	nss_tx_status_t status;
  	int ret = 0;
  
-@@ -1281,11 +1368,362 @@ int ath11k_nss_vdev_down(struct ath11k_v
+@@ -1281,11 +1368,365 @@ int ath11k_nss_vdev_down(struct ath11k_v
  	}
  
  	ath11k_dbg(ar->ab, ATH11K_DBG_NSS, "nss vdev down tx msg success\n");
@@ -510,6 +510,9 @@ Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
 +	ath11k_dbg(arvif->ar->ab, ATH11K_DBG_NSS_WDS,
 +		   "nss ext vdev interface delete ctx %pK, ifnum %d\n",
 +		   arvif->nss.ctx, arvif->nss.if_num);
++
++	if (arvif->nss.ext_vdev_up)
++		ath11k_nss_ext_vdev_down(arvif);
 +
 +	ath11k_nss_ext_vdev_unregister(arvif);
 +

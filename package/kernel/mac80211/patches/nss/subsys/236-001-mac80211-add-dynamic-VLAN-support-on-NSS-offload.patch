@@ -163,7 +163,7 @@ Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
 +				ieee80211_set_sdata_offload_flags(sdata);
 +				res = drv_add_interface(local, sdata);
 +				if (res)
-+					goto err_del_interface;
++					goto err_stop;
 +			}
  		}
  		break;
