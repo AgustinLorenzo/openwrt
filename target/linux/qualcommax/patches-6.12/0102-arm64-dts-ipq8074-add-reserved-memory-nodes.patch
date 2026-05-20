@@ -22,10 +22,9 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 @@ -86,6 +86,16 @@
  		#size-cells = <2>;
  		ranges;
- 
 +		nss@40000000 {
 +			no-map;
-+			reg = <0x0 0x40000000 0x0 0x01000000>;
++			reg = <0x0 0x40000000 0x00 0x1000000>;
 +		};
 +
 +		tzapp_region: tzapp@4a400000 {
@@ -43,17 +42,17 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +
 +		q6_region: wcnss@4b000000 {
 +			no-map;
-+			reg = <0x0 0x4b000000 0x0 0x05f00000>;
++			reg = <0x0 0x4b000000 0x0 0x3700000>;
 +		};
 +
 +		q6_etr_region: q6_etr_dump@50f00000 {
 +			no-map;
-+			reg = <0x0 0x50f00000 0x0 0x00100000>;
++			reg = <0x00 0x4e700000 0x00 0x100000>;
 +		};
 +
 +		m3_dump_region: m3_dump@51000000 {
 +			no-map;
-+			reg = <0x0 0x51000000 0x0 0x100000>;
++			reg = <0x00 0x4e800000 0x00 0x100000>;
 +		};
  	};
  
